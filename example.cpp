@@ -30,7 +30,14 @@ main()
     t.add( "25" );
     t.endOfRow();
 
+    t.setAlignment(0, TextTable::Alignment::CENTER);
+    t.setMinWidth(0, 10);
+
+    t.setMinWidth(1, 8);
+
     t.setAlignment( 2, TextTable::Alignment::RIGHT );
+    t.setMinWidth(2, 8);
+
     std::cout << t;
     return 0;
 }
