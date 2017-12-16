@@ -17,15 +17,29 @@ public:
             _vertical(vertical),
             _corner(corner) {}
 
-    void setAlignment(unsigned i, Alignment alignment) {
-        _alignment[i] = alignment;
+    void setAlignment(unsigned column, Alignment alignment) {
+        _alignmentDefault[column] = alignment;
     }
 
-    void setMinWidth(unsigned i, unsigned width) {
-        _minWidth[i] = width;
+    void setAlignment(unsigned row, unsigned column, Alignment alignment) {
+        _alignment[row][column] = alignment;
     }
 
-    Alignment alignment(unsigned i) const { return _alignment[i]; }
+    void setMinWidth(unsigned column, unsigned width) {
+        _minWidth[column] = width;
+    }
+
+    Alignment alignment(unsigned row, unsigned column) const {
+        if (_alignment.count(row) > 0 && _alignment[row].count(column) > 0) {
+            return _alignment[row][column];
+        }
+
+        if(_alignmentDefault.count(column) > 0) {
+            return _alignmentDefault[column];
+        }
+
+        return Alignment::LEFT;
+    }
 
     char vertical() const { return _vertical; }
 
@@ -33,6 +47,11 @@ public:
 
     void add(std::string const &content) {
         _current.push_back(content);
+    }
+
+    void add(std::string const &content, Alignment alignment) {
+        setAlignment((unsigned int) _rows.size(), (unsigned int) _current.size(), alignment);
+        add(content);
     }
 
     void endOfRow() {
@@ -59,7 +78,6 @@ public:
 
     void setup() const {
         determineWidths();
-        setupAlignment();
     }
 
     std::string ruler() const {
@@ -83,7 +101,8 @@ private:
     std::vector<Row> _rows;
     std::vector<unsigned long> mutable _width;
     std::map<unsigned long, unsigned int> mutable _minWidth;
-    std::map<unsigned long, Alignment> mutable _alignment;
+    std::map<unsigned long, Alignment> mutable _alignmentDefault;
+    std::map<unsigned long, std::map<unsigned int, Alignment>> mutable _alignment;
 
     static std::string repeat(unsigned long times, char c) {
         std::string result;
@@ -110,7 +129,7 @@ private:
     void setupAlignment() const {
         for (unsigned i = 0; i < columns(); ++i) {
             if (_alignment.find(i) == _alignment.end()) {
-                _alignment[i] = Alignment::LEFT;
+                _alignment[i][0] = Alignment::LEFT; //_alignment[zeile] = [spalte, Alignment]
             }
         }
     }
@@ -158,17 +177,18 @@ operator<<(std::basic_ostream<charT, traits> &s, const center_helper<charT, trai
 std::ostream &operator<<(std::ostream &stream, TextTable const &table) {
     table.setup();
     stream << table.ruler() << "\n";
-    for (auto rowIterator = table.rows().begin(); rowIterator != table.rows().end(); ++rowIterator) {
+    unsigned int rowNum = 0;
+    for (auto rowIterator = table.rows().begin(); rowIterator != table.rows().end(); ++rowIterator, rowNum++) {
         TextTable::Row const &row = *rowIterator;
         stream << table.vertical();
-        for (unsigned i = 0; i < row.size(); ++i) {
-            auto alignment = table.alignment(i) == TextTable::Alignment::LEFT ? std::left : std::right;
-            stream << std::setw((int) table.width(i)) << alignment;
+        for (unsigned column = 0; column < row.size(); ++column) {
+            auto alignment = table.alignment(rowNum, column) == TextTable::Alignment::LEFT ? std::left : std::right;
+            stream << std::setw((int) table.width(column)) << alignment;
 
-            if (table.alignment(i) == TextTable::Alignment::CENTER) {
-                stream << centered(row[i]);
+            if (table.alignment(rowNum, column) == TextTable::Alignment::CENTER) {
+                stream << centered(row[column]);
             } else {
-                stream << row[i];
+                stream << row[column];
             }
 
             stream << table.vertical();

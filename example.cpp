@@ -6,8 +6,8 @@ main()
     TextTable t( '-', '|', '+' );
 
     t.add( "" );
-    t.add( "Sex" );
-    t.add( "Age" );
+    t.add( "Sex", TextTable::Alignment::CENTER);
+    t.add( "Age", TextTable::Alignment::CENTER );
     t.endOfRow();
 
     t.add( "Moses" );
@@ -22,7 +22,7 @@ main()
 
     t.add( "Debora" );
     t.add( "female" );
-    t.add( "3001" );
+    t.add( "female" );
     t.endOfRow();
 
     t.add( "Bob" );
@@ -30,7 +30,6 @@ main()
     t.add( "25" );
     t.endOfRow();
 
-    t.setAlignment(0, TextTable::Alignment::CENTER);
     t.setMinWidth(0, 10);
 
     t.setMinWidth(1, 8);
