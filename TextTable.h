@@ -12,10 +12,11 @@ public:
     };
     typedef std::vector<std::string> Row;
 
-    TextTable(char horizontal = '-', char vertical = '|', char corner = '+') :
+    TextTable(char horizontal = '-', char vertical = '|', char corner = '+', bool headerOnlyTable = false) :
             _horizontal(horizontal),
             _vertical(vertical),
-            _corner(corner) {}
+            _corner(corner),
+            _headerOnlyTable(headerOnlyTable) {}
 
     void setAlignment(unsigned column, Alignment alignment) {
         _alignmentDefault[column] = alignment;
@@ -44,6 +45,8 @@ public:
     char vertical() const { return _vertical; }
 
     char horizontal() const { return _horizontal; }
+
+    bool isHeaderOnlyTable() const { return  _headerOnlyTable; }
 
     void add(std::string const &content) {
         _current.push_back(content);
@@ -97,6 +100,7 @@ private:
     char _horizontal;
     char _vertical;
     char _corner;
+    bool _headerOnlyTable;
     Row _current;
     std::vector<Row> _rows;
     std::vector<unsigned long> mutable _width;
@@ -194,7 +198,10 @@ std::ostream &operator<<(std::ostream &stream, TextTable const &table) {
             stream << table.vertical();
         }
         stream << "\n";
-        stream << table.ruler() << "\n";
+
+        if(!table.isHeaderOnlyTable() || rowNum < 1) {
+            stream << table.ruler() << "\n";
+        }
     }
 
     return stream;
