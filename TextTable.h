@@ -157,7 +157,7 @@ center_helper<charT, traits> centered(std::basic_string<charT, traits> str) {
 }
 
 // redeclare for std::string directly so we can support anything that implicitly converts to std::string
-center_helper<std::string::value_type, std::string::traits_type> centered(const std::string &str) {
+inline center_helper<std::string::value_type, std::string::traits_type> centered(const std::string &str) {
     return center_helper<std::string::value_type, std::string::traits_type>(str);
 }
 
@@ -178,7 +178,7 @@ operator<<(std::basic_ostream<charT, traits> &s, const center_helper<charT, trai
 }
 //endregion
 
-std::ostream &operator<<(std::ostream &stream, TextTable const &table) {
+inline std::ostream &operator<<(std::ostream &stream, TextTable const &table) {
     table.setup();
     stream << table.ruler() << "\n";
     unsigned int rowNum = 0;
